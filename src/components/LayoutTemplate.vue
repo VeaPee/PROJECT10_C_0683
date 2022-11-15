@@ -55,6 +55,7 @@ export default {
         return {
             drawer: true,
             menus: [
+                {title: 'Products', icon: 'mdi-shape-outline', to:'/product'},
                 {title: 'Merchandise', icon: 'mdi-hand-heart-outline', to:'/merchandise'},
                 {title: 'Album', icon: 'mdi-album', to:'/album'},
             ],
