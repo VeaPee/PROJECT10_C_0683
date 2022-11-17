@@ -1,65 +1,19 @@
 <template>
     <v-main>
-       <v-card elevation="3" class="mt-5 mx-6" style="border-radius: 6px;">
-            <v-row justify="center" align="center" style="margin:3px auto;">
-                <v-col>
-                    <v-text-field v-model="search" class="font-weight-bold" color="black" style="width: 70%;font-family: Poppins; font-size: 20px; font-style:bold; border-radius: 10px;" rounded append-icon="mdi-magnify" outlined placeholder="Search..." hide-details></v-text-field>
-                </v-col>
-                <v-col>
-                    <v-btn class="font-weight-bold" style="margin:10px auto;font-family: Poppins; font-size: 20px; text-transform: capitalize; float:right; color: #F7CACA" x-large color="#93A9D1" @click="dialog = true">New Merchandise</v-btn>
+        <v-container>
+            <v-row>
+                <v-col v-for="(card, index) in merchandises" :key="index">
+                        <v-card 
+                        elevation="3" style="border-radius: 10px;"
+                        class="pa-6 ma-1"
+                        outlined 
+                        :color=setColor()
+                        tile>
+                            <v-row class="d-flex justify-center" style="font-size: 1.2em;"><b>{{ card.merchandise }}</b></v-row>
+                        </v-card>
                 </v-col>
             </v-row>
-        </v-card>
-        <v-card elevation="3" style="border-radius: 6px;" class="mt-5 mx-6">
-            <v-data-table :headers="headers" :items="merchandises" :search="search" :items-per-page="10">
-                <template v-slot:[`item.actions`]="{ item }">
-                    <v-icon  color="green darken-2" class="mr-2" @click="editData(item)">mdi-pencil</v-icon>
-                    <v-icon  color="red" @click="selectedId = item.id; dialogConfirm = true"> mdi-delete </v-icon>
-                </template>
-            </v-data-table>
-        </v-card>
-        <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialog" style="border-radius: 10px;">
-            <v-card style="border-radius: 10px;">
-                <v-card-title class="pa-0">
-                    <v-toolbar color="#93A9D1" elevation="0" style="border-radius: 10px 10px 0px 0px;" height="90%">
-                      <span style="color: #F7CACA; font-family: Poppins; font-weight: 800; font-size: 160%; margin-left: 3%;">{{ formTitle }}</span>   
-                    </v-toolbar>
-                </v-card-title> 
-                <v-card-text class="pb-0">
-                    <v-container> 
-                        <v-form ref="form">
-                            <v-text-field outlined color="black" class="textfield mt-3"  v-model="form.merchandise" label="Merchandise Name" required :rules="inputRules"></v-text-field>
-                            <v-text-field outlined color="black" class="textfield mt-3"  v-model="form.artist" label="Artist Name" required :rules="inputRules"></v-text-field>
-                            <v-text-field outlined color="black" class="textfield"  v-model="form.price" label="Price" :rules="inputRules" prefix="Rp" type="numeric"></v-text-field>
-                            <v-text-field outlined color="black" class="textfield"  v-model="form.stock" label="Stock" :rules="inputRules" type="numeric"></v-text-field>
-                            <v-text-field outlined color="black" class="textfield"  v-model="form.package" label="Packaging" :rules="inputRules"></v-text-field>
-                        </v-form>
-                    </v-container> 
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions class="justify-end">
-                    <v-btn color="#EEEEEE" large style="font-family: Poppins; font-size: 20px; text-transform: capitalize; font-weight: 900; color:#001D38;" @click="closeDialog()"> Cancel </v-btn>
-                    <v-btn color="#93A9D1" large style="font-family: Poppins; font-size: 20px; text-transform: capitalize; font-weight: 700; color:#F7CACA;" @click="saveData()"> Save </v-btn> 
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-        <v-dialog transition="dialog-top-transition" max-width="400" v-model="dialogConfirm" style="border-radius: 10px;">
-            <v-card style="border-radius: 10px;">
-                <v-card-title class="pa-0">
-                    <v-toolbar color="#EF5350" elevation="0" style="border-radius: 10px 10px 0px 0px;" height="80%">
-                      <span style="color: white; font-family: Poppins; font-weight: 800; font-size: 160%; margin-left: 3%;">Alert!</span>   
-                    </v-toolbar>
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-card-text style="font-family: Poppins; font-size: 100%; color: #001D38; margin-top: 5%"> Are you sure want to delete this data? </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="#EEEEEE" large style="font-family: Poppins; font-size: 20px; text-transform: capitalize; font-weight: 900; color:#001D38;" @click="dialogConfirm = false;"> Cancel </v-btn>
-                    <v-btn color="#EF5350" large style="font-family: Poppins; font-size: 20px; text-transform: capitalize; font-weight: 700; color:#EEEEEE;" @click="deleteData">Yes</v-btn> 
-                </v-card-actions>
-                </v-card>
-        </v-dialog>
-        <V-snackbar v-model="snackbar"  style="font-family: Poppins;" :color="color" timeout="2000" top>{{ error_message }}</v-snackbar> 
+        </v-container>
     </v-main>
 </template>
 
@@ -105,40 +59,14 @@ export default {
     data () {
         return {
             load: false,
-            search: '',
-            filter: '',
             snackbar: false,
-            error_message: '',
             color: '',
-            headers: [
-                {text: "Merchandies Name", value: "merchandise"},
-                {text: "Artist Name", value: "artist"},
-                {text: "Price", value: "price"},
-                {text: "Stock", value: "stock"},
-                {text: "Packaging", value: "package"},
-                {text: "", value: "actions"},
-            ],
-            type:[
-                'Hot',
-                'Cool',
-                'Cold',
-            ],
-            inputRules: [
-                (v) => !!v || 'Must be filled!',
-            ],
+            colors: ["#c07bc3", "#a6dcaf", "#ddddce","#2BA84A","#00A1E4","#F5B700","#34E4EA",
+                    "#F497DA", "#623CEA","#FFFD82","#00BBF9","#D81E5B","#2A9D8F","#F9CFF2",
+                    "#B0B2B8","#E2A0FF","#FAFFFD","#3C91E6","#E365C1","#FF7700","#E84855",
+                    "#85C7F2","#F58549","#255C99","#5C946E","#44CF6C","#FCE762","#E75A7C"],
             merchandise : new FormData,
             merchandises: [],
-            dialog: false,
-            dialogConfirm: false,
-            form: {
-                merchandise: '',
-                artist: '',
-                price: '',
-                stock: '',
-                package: ''
-            },
-            formType: 0,
-            selectedId: '',
         }
     },
 
@@ -160,71 +88,9 @@ export default {
     },
 
     methods: {
-        saveData() {
-            //tambahkan fungsi untuk create dan update data
-            if(this.formType == -1){
-                set(ref(db, "merchandises/" + this.selectedId), this.form)
-                .then(()=>{
-                    this.snackbar = true;
-                    this.error_message = "Update Data Success!";
-                    this.color = "green";
-                    this.closeDialog();
-                }).catch((err) =>{
-                    this.error_message = "Update Data Failed!" + err;
-                    this.color = "red";
-                    this.closeDialog();
-                })
-            }else {
-                push(ref(db,"merchandises"), this.form)
-                .then(()=>{
-                    this.snackbar = true;
-                    this.error_message = "Add Data Success!";
-                    this.color = "green";
-                    this.closeDialog();
-                }).catch((err) =>{
-                    this.error_message = "Add Data Failed!" + err;
-                    this.color = "red";
-                    this.closeDialog();
-                })
-            }
-        },
-
-        editData(item){
-            this.dialog = true; 
-            this.formType = -1; 
-            this.form = Object.assign({}, item);
-            this.selectedId = item.id;
-        },
-
-        deleteData() {
-            //tambahkan fungsi untuk delete data
-            remove(ref(db, "merchandises/" + this.selectedId))
-            .then(()=>{
-                    this.dialogConfirm = false;
-                    this.snackbar = true;
-                    this.error_message = "Delete Data Success!";
-                    this.color = "green";
-
-                }).catch((err) =>{
-                    this.dialogConfirm = false;
-                    this.snackbar = true;
-                    this.error_message = "Delete Data Failed!" + err;
-                    this.color = "red";
-
-                })
-        },
-
-        closeDialog() {
-            this.dialog = false;
-            this.formType = 0;
-            this.$refs.form.reset();
+        setColor() {
+            return this.colors[Math.floor(Math.random() * this.colors.length)]
         }
-    },
-
-    computed: {
-        formTitle() {
-            return this.formType === 0 ? "Create Merchandise" : "Update Merchandise";
-        },
     },
 }
 </script>
